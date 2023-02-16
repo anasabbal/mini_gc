@@ -32,10 +32,14 @@ typedef struct {
 // Creating new virtual machine
 VM *newVM(){
     VM *vm = malloc(sizeof (VM));
+    printf("[+] Creating Virtual Machine with stack size %d", vm->stackSize);
     vm->stackSize = 0;
     return vm;
 }
 void assert(int condition, const char *message){
+
+    printf("[+] Message is %c\n", &message);
+    printf("[+] Condition is %d\n", &condition);
     if(!condition){
         printf("%s\n", message);
         exit(1);
@@ -67,7 +71,32 @@ Object *pushPair(VM *vm){
     push(vm, object);
     return object;
 }
+void mark(Object *object){
+    if (object->marked)
+        return;
+
+    object->marked = 1;
+
+    if(object->type == OBJ_PAIR){
+        mark(object->head);
+        mark(object->tail);
+    }
+}
+void markAll(VM *vm){
+    for(int i = 0; i < vm->stackSize; i++){
+        mark(vm->stack[i]);
+    }
+}
+void test1(){
+    printf("[+] Test 1: Objects on stack are preserved.\n");
+    VM *vm = newVM();
+    pushInt(vm, 1);
+    pushInt(vm, 2);
+}
+void test2(){
+
+
+}
 int main() {
-    printf("Hello, World!\n");
-    return 0;
+    test1();
 }
